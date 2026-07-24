@@ -2,7 +2,7 @@
 
 ![image](https://github.com/harindujayakody/nic-information-finder/assets/9878813/be2cc7a3-f5cb-4f92-a98d-ec131bf368c0)
 
-# NIC Information Finder 🇱🇰
+# NIC Information Finder 🇱🇰 With DOB
 
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](script.js)
