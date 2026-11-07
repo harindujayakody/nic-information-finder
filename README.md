@@ -14,13 +14,31 @@
 ---
 
 ### About
-Enter any 9-digit (old format) or 12-digit (new format) Sri Lankan National Identity Card number to instantly find:
-- **Date of Birth** & Year
+Enter any 9-digit (old format, e.g. `931234567V` / `931234567X`) or 12-digit (new format, e.g. `199312345678`) Sri Lankan National Identity Card number to instantly extract and calculate:
+- **Date of Birth** & Birth Year
 - **Gender** (Male / Female)
-- **Voting Eligibility** status
+- **Current Age**
+
+---
+
+### Features
+- Validates both legacy 10-character (`9 digits + V/X`) and modern 12-digit formats.
+- Accurate 366-day calendar day-of-year decoding.
+- Accurate calendar-based age calculation.
+- Subresource Integrity (SRI) on CDN assets.
+
+---
+
+### Running Tests
+
+Run the test suite with Node.js:
+
+```bash
+node test.js
+```
 
 ---
 
 ### Tech Stack
 - HTML5 / CSS3
-- Pure JavaScript (Vanilla JS)
+- JavaScript / jQuery (with SRI verification)

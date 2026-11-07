@@ -5,33 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NIC Information Finder</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <script src="script.js" defer></script>
     <link rel="shortcut icon" type="image/jpg" href="/nic-information-finder/img/favicon.ico"/>
 
-        <!-- SEO Meta Tags -->
-    <meta name="description" content="A concise and relevant description of your page content.">
-    <meta name="keywords" content="Keywords related to your content, separated by commas">
-    <meta name="author" content="Your Name or Your Company Name">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Sri Lankan National Identity Card (NIC) information finder. Decode birth year, date of birth, gender, and age.">
+    <meta name="keywords" content="Sri Lanka, NIC, National Identity Card, NIC Decoder, Birthday, Age, Gender">
+    <meta name="author" content="Harindu Jayakody">
 
     <!-- Open Graph Meta Tags (for social media sharing) -->
-    <meta property="og:title" content="Your Page Title">
-    <meta property="og:description" content="A concise and relevant description of your page content.">
-    <meta property="og:image" content="URL to an image related to your content">
-    <meta property="og:url" content="URL of your page">
+    <meta property="og:title" content="NIC Information Finder">
+    <meta property="og:description" content="Decode birthday, gender, and age from old and new Sri Lankan NIC numbers.">
+    <meta property="og:type" content="website">
 
-    <!-- Twitter Card Meta Tags (for Twitter sharing) -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Your Page Title">
-    <meta name="twitter:description" content="A concise and relevant description of your page content.">
-    <meta name="twitter:image" content="URL to an image related to your content">
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="URL of your preferred version of the page">
-
-    <!-- Robots Meta Tag -->
-    <meta name="robots" content="noindex" />
-    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="NIC Information Finder">
+    <meta name="twitter:description" content="Decode birthday, gender, and age from old and new Sri Lankan NIC numbers.">
 </head>
 <body>
 
@@ -39,7 +30,7 @@
         <h2>NIC Information Finder</h2>
         <form>
             <label for="nic">Enter NIC Number:</label>
-            <input type="text" id="nic" placeholder="Enter NIC number..." maxlength="12" required>
+            <input type="text" id="nic" placeholder="e.g. 931234567V or 199312345678" maxlength="12" required>
             <div class="button-group">
                 <button type="button" id="find">Find Information</button>
                 <button type="reset">Reset</button>
