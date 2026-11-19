@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIC Information Finder</title>
+    <title>Sri Lanka NIC Decoder: Birthday, Age and Gender</title>
+    <meta name="color-scheme" content="dark light">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
     <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <script src="script.js" defer></script>
     <link rel="shortcut icon" type="image/jpg" href="/nic-information-finder/img/favicon.ico"/>
 
@@ -13,30 +16,42 @@
     <meta name="description" content="Find the date of birth, age and gender from a Sri Lankan NIC number (old 9-digit V/X or new 12-digit format).">
     <meta name="author" content="Harindu Jayakody">
     <link rel="canonical" href="https://harindujayakody.com/free-tools/sri-lanka-nic-decoder/">
-
     <meta name="robots" content="noindex" />
-    
 </head>
 <body>
+    <main>
+        <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="https://harindujayakody.com/free-tools/">free-tools</a><span>/</span><span class="here">sri-lanka-nic-decoder</span>
+        </nav>
+        <h1>Sri Lanka NIC decoder</h1>
+        <p class="lead">Find the date of birth, age and gender from a Sri Lankan National Identity Card number. Works with the old 9-digit V/X numbers and the new 12-digit ones.</p>
 
-    <div class="container">
-        <h2>NIC Information Finder</h2>
-        <form>
-            <label for="nic">Enter NIC Number:</label>
-            <input type="text" id="nic" placeholder="Enter NIC number..." maxlength="12" required>
-            <div class="button-group">
-                <button type="button" id="find">Find Information</button>
-                <button type="reset">Reset</button>
+        <form id="nic-form" class="card" novalidate>
+            <label for="nic" class="mono-label">NIC number · old (9 digits + V/X) or new (12 digits)</label>
+            <div class="row">
+                <input id="nic" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="16"
+                    placeholder="e.g. 199512300000 or 951230000V" aria-describedby="msg">
+                <button type="submit">Find details</button>
             </div>
+            <p id="msg" role="status" aria-live="polite"></p>
+            <dl id="result" hidden>
+                <div class="wide"><dt>Date of birth</dt><dd data-f="dob"></dd></div>
+                <div><dt>Age</dt><dd data-f="age"></dd></div>
+                <div><dt>Gender</dt><dd data-f="gender"></dd></div>
+                <div><dt>Format</dt><dd data-f="format"></dd></div>
+                <div><dt>Day number</dt><dd data-f="day"></dd></div>
+            </dl>
+            <p class="note">Decoded in your browser. The number is never sent anywhere or saved.</p>
         </form>
-        <p class="moved">A newer version with old/new conversion lives at <a href="https://harindujayakody.com/free-tools/sri-lanka-nic-decoder/">harindujayakody.com/free-tools/sri-lanka-nic-decoder</a>.</p>
 
-        <div id="result">
-            <p id="error"></p>
-            <p><strong>Gender:</strong> <span id="gender"></span></p>
-            <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
-            <p><strong>Age:</strong> <span id="age"></span></p>
-        </div>
-    </div>
+        <p class="moved">The maintained version, with old/new conversion and a full guide, lives at
+            <a href="https://harindujayakody.com/free-tools/sri-lanka-nic-decoder/">harindujayakody.com/free-tools/sri-lanka-nic-decoder</a>.</p>
+
+        <footer>
+            <a href="https://github.com/harindujayakody/nic-information-finder">Source on GitHub</a>
+            <span>·</span>
+            <a href="https://harindujayakody.com/">harindujayakody.com</a>
+        </footer>
+    </main>
 </body>
 </html>
