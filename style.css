@@ -115,6 +115,10 @@ button:hover { background: color-mix(in oklch, var(--primary) 85%, transparent);
 button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }
 
 #msg { margin: 0; min-height: 1.25rem; font-size: 0.875rem; color: var(--danger); }
+#msg.sr-only { position: absolute; width: 1px; height: 1px; min-height: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+dd { font-variant-numeric: tabular-nums; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+.rise { animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0ms); }
 
 dl { display: grid; gap: 0.5rem; margin: 0; }
 dl[hidden] { display: none; }
@@ -135,4 +139,4 @@ footer { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.8rem; color: 
 footer a { color: inherit; }
 footer a:hover { color: var(--primary); }
 
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

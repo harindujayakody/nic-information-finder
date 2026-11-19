@@ -40,4 +40,5 @@ assert.match(d("abc"), /9 digits/);
 assert.strictEqual(ageOn({ year: 1995, month: 5, day: 2 }, new Date(2026, 4, 1)), 30);
 assert.strictEqual(ageOn({ year: 1995, month: 5, day: 2 }, new Date(2026, 4, 2)), 31);
 
+assert.strictEqual(d("95 123 0000 v"), "1995-05-02 Male"); // spaces and lower case
 console.log("All NIC tests passed.");

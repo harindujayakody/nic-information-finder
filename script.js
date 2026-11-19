@@ -17,7 +17,7 @@ function isLeapYear(year) {
 
 // Returns { year, month (1-12), day, gender, dayNumber, format } or { error }.
 function decodeNic(input) {
-    var nic = String(input).trim().toUpperCase();
+    var nic = String(input).replace(/\s+/g, "").toUpperCase();
     var year, dayNumber, format;
 
     if (/^\d{9}[VX]$/.test(nic)) {
@@ -62,50 +62,105 @@ if (typeof module !== "undefined") {
 }
 
 var WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var POOLS = { digit: "0123456789", upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ", lower: "abcdefghijklmnopqrstuvwxyz" };
 
-// Browser UI. Results are written with textContent; nothing is sent or stored.
+function poolFor(c) {
+    return /\d/.test(c) ? POOLS.digit : /[A-Z]/.test(c) ? POOLS.upper : /[a-z]/.test(c) ? POOLS.lower : "";
+}
+
+// Lottery-style reveal: letters and digits spin, then lock in from left to right.
+// Spaces and punctuation stay put. alive() returns false once a newer result replaces this one.
+function roll(el, finalText, delay, alive) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        el.textContent = finalText;
+        return;
+    }
+    var duration = 900;
+    var start = performance.now() + delay;
+    var lastTick = 0;
+    function spin(locked) {
+        return finalText.split("").map(function (c, i) {
+            var pool = poolFor(c);
+            return i < locked || !pool ? c : pool[Math.floor(Math.random() * pool.length)];
+        }).join("");
+    }
+    el.textContent = spin(0);
+    function frame(now) {
+        if (!alive()) return;
+        var t = (now - start) / duration;
+        if (t >= 1) {
+            el.textContent = finalText;
+            return;
+        }
+        // About 20 changes a second: reads as spinning without flicker. Ease-out so it slows as it settles.
+        if (now - lastTick > 50) {
+            lastTick = now;
+            el.textContent = spin(t <= 0 ? 0 : Math.floor((1 - Math.pow(1 - t, 3)) * finalText.length));
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}
+
+// Browser UI. Results appear after submit; nothing is sent or stored.
 if (typeof document !== "undefined") {
     document.addEventListener("DOMContentLoaded", function () {
         var form = document.getElementById("nic-form");
         var input = document.getElementById("nic");
         var msg = document.getElementById("msg");
         var out = document.getElementById("result");
+        var cards = out.querySelectorAll("div");
+        var reveal = 0;
 
-        function set(name, value) {
-            out.querySelector('[data-f="' + name + '"]').textContent = value;
+        function clear() {
+            reveal++;
+            out.hidden = true;
+            msg.textContent = "";
+            msg.className = "";
         }
 
-        function run(final) {
-            var value = input.value.trim();
-            if (!value) {
-                out.hidden = true;
-                msg.textContent = "";
-                return;
-            }
-            var r = decodeNic(value);
-            if (r.error) {
-                out.hidden = true;
-                // While typing, only complain once the input is long enough to be a full number.
-                msg.textContent = final || value.length >= 10 ? r.error : "";
-                return;
-            }
-            var age = ageOn(r, new Date());
-            var weekday = WEEKDAYS[new Date(Date.UTC(r.year, r.month - 1, r.day)).getUTCDay()];
-            set("dob", weekday + ", " + r.day + " " + MONTH_NAMES[r.month - 1] + " " + r.year);
-            set("age", age + (age === 1 ? " year" : " years"));
-            set("gender", r.gender);
-            set("format", r.format === "old" ? "Old (9 digits + letter)" : "New (12 digits)");
-            set("day", String(r.dayNumber).padStart(3, "0") + (r.gender === "Female" ? " (day + 500)" : ""));
-            msg.textContent = "";
-            out.hidden = false;
+        function error(text) {
+            msg.textContent = text;
+            msg.className = "error";
         }
 
         form.addEventListener("submit", function (e) {
             e.preventDefault();
-            run(true);
+            clear();
+            var value = input.value.trim();
+            if (!value) return error("Enter a NIC number first.");
+            var r = decodeNic(value);
+            if (r.error) return error(r.error);
+
+            var age = ageOn(r, new Date());
+            var ageText = age + (age === 1 ? " year" : " years");
+            var dob = WEEKDAYS[new Date(Date.UTC(r.year, r.month - 1, r.day)).getUTCDay()] + ", " + r.day + " " + MONTH_NAMES[r.month - 1] + " " + r.year;
+            var values = {
+                dob: dob,
+                age: ageText,
+                gender: r.gender,
+                format: r.format === "old" ? "Old (9 digits + letter)" : "New (12 digits)",
+                day: String(r.dayNumber).padStart(3, "0") + (r.gender === "Female" ? " (day + 500)" : "")
+            };
+            var id = reveal;
+            out.hidden = false;
+            cards.forEach(function (card, i) {
+                // Restart the card's fade-in; reading offsetWidth forces the browser to notice the removal.
+                card.classList.remove("rise");
+                void card.offsetWidth;
+                card.style.setProperty("--d", i * 90 + "ms");
+                card.classList.add("rise");
+                var dd = card.querySelector("dd");
+                roll(dd, values[dd.dataset.f], i * 90, function () { return id === reveal; });
+            });
+            // The rolling text isn't announced; screen readers get the result in one sentence.
+            msg.textContent = "Born " + dob + ". " + r.gender + ", " + ageText + " old.";
+            msg.className = "sr-only";
         });
+
+        // Results belong to the number that was submitted, so editing it clears them.
         input.addEventListener("input", function () {
-            run(false);
+            if (!out.hidden || msg.textContent) clear();
         });
     });
 }
