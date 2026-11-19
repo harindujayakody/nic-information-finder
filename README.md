@@ -32,7 +32,7 @@ Type a NIC number and the decoder shows:
 | Format | New (12 digits) |
 | Day number | 123 |
 
-It accepts spaces and lower-case letters, checks the number as you type, and explains what's wrong with an invalid one (wrong length, day out of range, or 29 February in a year that didn't have one).
+Press **Find details** (or Enter) and the result rolls into place: each value spins through random characters and locks in from left to right, and the cards fade in one after another. With reduced motion turned on, the result appears at once. It accepts spaces and lower-case letters, and explains what's wrong with an invalid number (wrong length, day out of range, or 29 February in a year that didn't have one).
 
 The [version on harindujayakody.com](https://harindujayakody.com/free-tools/sri-lanka-nic-decoder/) also converts old numbers to the new format and back, and has a FAQ. This repository holds the original tool and the decoding logic with tests.
 
