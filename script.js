@@ -61,25 +61,51 @@ if (typeof module !== "undefined") {
     module.exports = { decodeNic: decodeNic, ageOn: ageOn };
 }
 
-if (typeof $ !== "undefined") {
-    $(document).ready(function () {
-        function clear() {
-            $("#error").text("");
-            $("#gender").text("");
-            $("#dob").text("");
-            $("#age").text("");
+var WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+// Browser UI. Results are written with textContent; nothing is sent or stored.
+if (typeof document !== "undefined") {
+    document.addEventListener("DOMContentLoaded", function () {
+        var form = document.getElementById("nic-form");
+        var input = document.getElementById("nic");
+        var msg = document.getElementById("msg");
+        var out = document.getElementById("result");
+
+        function set(name, value) {
+            out.querySelector('[data-f="' + name + '"]').textContent = value;
         }
 
-        $("#find").click(function () {
-            clear();
-            var r = decodeNic($("#nic").val());
-            if (r.error) {
-                $("#error").text(r.error);
+        function run(final) {
+            var value = input.value.trim();
+            if (!value) {
+                out.hidden = true;
+                msg.textContent = "";
                 return;
             }
-            $("#gender").text(r.gender);
-            $("#dob").text(r.year + "-" + MONTH_NAMES[r.month - 1] + "-" + r.day);
-            $("#age").text("You are " + ageOn(r, new Date()) + " years old.");
+            var r = decodeNic(value);
+            if (r.error) {
+                out.hidden = true;
+                // While typing, only complain once the input is long enough to be a full number.
+                msg.textContent = final || value.length >= 10 ? r.error : "";
+                return;
+            }
+            var age = ageOn(r, new Date());
+            var weekday = WEEKDAYS[new Date(Date.UTC(r.year, r.month - 1, r.day)).getUTCDay()];
+            set("dob", weekday + ", " + r.day + " " + MONTH_NAMES[r.month - 1] + " " + r.year);
+            set("age", age + (age === 1 ? " year" : " years"));
+            set("gender", r.gender);
+            set("format", r.format === "old" ? "Old (9 digits + letter)" : "New (12 digits)");
+            set("day", String(r.dayNumber).padStart(3, "0") + (r.gender === "Female" ? " (day + 500)" : ""));
+            msg.textContent = "";
+            out.hidden = false;
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            run(true);
+        });
+        input.addEventListener("input", function () {
+            run(false);
         });
     });
 }
