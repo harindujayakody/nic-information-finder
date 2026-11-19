@@ -21,6 +21,15 @@ Enter any 9-digit (old format) or 12-digit (new format) Sri Lankan National Iden
 
 ---
 
+### How the date is decoded
+NIC numbers store the birthday as a day of the year (plus 500 for women) using a table where **February always has 29 days**, so day 61 is 1 March in every year. Day 60 in a non-leap year is rejected.
+
+Run the tests with `node test.js`.
+
+A newer version (with old/new number conversion) is at [harindujayakody.com/free-tools/sri-lanka-nic-decoder](https://harindujayakody.com/free-tools/sri-lanka-nic-decoder/).
+
+---
+
 ### Tech Stack
 - HTML5 / CSS3
 - Pure JavaScript (Vanilla JS)

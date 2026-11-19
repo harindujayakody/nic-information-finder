@@ -1,116 +1,85 @@
-$(document).ready(function () {
-    var MONTH_NAMES = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
+// Sri Lankan NIC decoder.
+//
+// NIC numbers count the birthday as a day of the year in which February ALWAYS has 29 days:
+// day 60 is always 29 February and day 61 is always 1 March, leap year or not. Using the real
+// calendar instead puts every birthday after February one day late in non-leap years.
+// Women have 500 added to the day number.
 
-    function isLeapYear(year) {
-        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+var MONTH_NAMES = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
+var NIC_MONTH_DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+// Returns { year, month (1-12), day, gender, dayNumber, format } or { error }.
+function decodeNic(input) {
+    var nic = String(input).trim().toUpperCase();
+    var year, dayNumber, format;
+
+    if (/^\d{9}[VX]$/.test(nic)) {
+        format = "old";
+        year = 1900 + parseInt(nic.substr(0, 2), 10);
+        dayNumber = parseInt(nic.substr(2, 3), 10);
+    } else if (/^\d{12}$/.test(nic)) {
+        format = "new";
+        year = parseInt(nic.substr(0, 4), 10);
+        dayNumber = parseInt(nic.substr(4, 3), 10);
+    } else {
+        return { error: "Enter 9 digits followed by V or X, or 12 digits." };
     }
 
-    function showError(message) {
-        $("#error").html(message);
-        $("#gender").html("");
-        $("#dob").html("");
-        $("#age").html("");
+    var gender = dayNumber > 500 ? "Female" : "Male";
+    var day = dayNumber > 500 ? dayNumber - 500 : dayNumber;
+    if (day < 1 || day > 366) {
+        return { error: "The day number in this NIC is out of range." };
+    }
+    if (day === 60 && !isLeapYear(year)) {
+        return { error: "This NIC points to 29 February in a year that has no 29 February." };
     }
 
-    $("#find").click(function () {
-        // Clear existing details
-        $("#error").html("");
-        $("#gender").html("");
-        $("#dob").html("");
-        $("#age").html("");
+    var month = 0;
+    while (day > NIC_MONTH_DAYS[month]) {
+        day -= NIC_MONTH_DAYS[month];
+        month++;
+    }
+    return { year: year, month: month + 1, day: day, gender: gender, dayNumber: dayNumber, format: format };
+}
 
-        var NICNo = $("#nic").val().trim();
-        var year = 0;
-        var dayText = 0;
-        var gender = "";
+function ageOn(dob, today) {
+    var age = today.getFullYear() - dob.year;
+    if (today.getMonth() + 1 < dob.month || (today.getMonth() + 1 === dob.month && today.getDate() < dob.day)) {
+        age -= 1;
+    }
+    return age;
+}
 
-        if (NICNo.length !== 10 && NICNo.length !== 12) {
-            showError("Invalid NIC NO");
-            return;
+if (typeof module !== "undefined") {
+    module.exports = { decodeNic: decodeNic, ageOn: ageOn };
+}
+
+if (typeof $ !== "undefined") {
+    $(document).ready(function () {
+        function clear() {
+            $("#error").text("");
+            $("#gender").text("");
+            $("#dob").text("");
+            $("#age").text("");
         }
 
-        if (NICNo.length === 10) {
-            // Old format: 9 digits + trailing V or X (case-insensitive).
-            // Previously only the first 9 characters were checked and the
-            // trailing letter was never validated.
-            if (!/^\d{9}[VXvx]$/.test(NICNo)) {
-                showError("Invalid NIC NO");
+        $("#find").click(function () {
+            clear();
+            var r = decodeNic($("#nic").val());
+            if (r.error) {
+                $("#error").text(r.error);
                 return;
             }
-            year = parseInt("19" + NICNo.substr(0, 2), 10);
-            dayText = parseInt(NICNo.substr(2, 3), 10);
-        } else {
-            // New format: 12 digits, all numeric.
-            if (!/^\d{12}$/.test(NICNo)) {
-                showError("Invalid NIC NO");
-                return;
-            }
-            year = parseInt(NICNo.substr(0, 4), 10);
-            dayText = parseInt(NICNo.substr(4, 3), 10);
-        }
-
-        // Gender
-        if (dayText > 500) {
-            gender = "Female";
-            dayText = dayText - 500;
-        } else {
-            gender = "Male";
-        }
-
-        // Day-of-year validation. The old check
-        // `dayText < 1 && dayText > 366` could never fire (a number cannot
-        // be both below 1 and above 366), so out-of-range values slipped
-        // through. Also validate against the actual year length so day 366
-        // is rejected in non-leap years.
-        var maxDay = isLeapYear(year) ? 366 : 365;
-        if (dayText < 1 || dayText > maxDay) {
-            showError("Invalid NIC NO");
-            return;
-        }
-
-        // Compute the date from a real Date object instead of a hardcoded
-        // month table. The old table treated day 60 as March in every year
-        // (in leap years day 60 is 29 February) and its February branch
-        // accepted impossible dates such as 30/31 February. The round-trip
-        // check below rejects anything the calendar cannot represent.
-        var dobDate = new Date(year, 0, dayText);
-        if (
-            dobDate.getFullYear() !== year ||
-            dobDate.getMonth() < 0 || dobDate.getMonth() > 11 ||
-            dobDate.getDate() < 1 || dobDate.getDate() > 31
-        ) {
-            showError("Invalid NIC NO");
-            return;
-        }
-        // Round-trip: the constructed date must map back to the same
-        // day-of-year, otherwise the input was not a real calendar date.
-        var startOfYear = new Date(year, 0, 1);
-        var roundTripDay = Math.round((dobDate - startOfYear) / 86400000) + 1;
-        if (roundTripDay !== dayText) {
-            showError("Invalid NIC NO");
-            return;
-        }
-
-        var month = MONTH_NAMES[dobDate.getMonth()];
-        var day = dobDate.getDate();
-        var dobText = year + "-" + month + "-" + day;
-
-        // Age in whole years, accounting for whether the birthday has
-        // occurred yet this year (the old code divided by 365 days).
-        var today = new Date();
-        var ageYears = today.getFullYear() - year;
-        var birthdayThisYear = new Date(today.getFullYear(), dobDate.getMonth(), dobDate.getDate());
-        if (today < birthdayThisYear) {
-            ageYears -= 1;
-        }
-        var ageText = "You are " + ageYears + " years old.";
-
-        // Show details
-        $("#gender").html(gender);
-        $("#dob").html(dobText);
-        $("#age").html(ageText);
+            $("#gender").text(r.gender);
+            $("#dob").text(r.year + "-" + MONTH_NAMES[r.month - 1] + "-" + r.day);
+            $("#age").text("You are " + ageOn(r, new Date()) + " years old.");
+        });
     });
-});
+}
